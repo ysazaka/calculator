@@ -3,20 +3,66 @@ import {StyleSheet, View} from 'react-native';
 import CustomKey from './src/components/CustomKey';
 import Display from './src/components/Display';
 
+const initialState = {
+  displayValue: '0',
+  clearDisplay: false,
+  operation: null,
+  values: [0, 0],
+  currentIndexValue: 0
+}
+
 export default class App extends Component {
-  state = {
-    displayValue: '0',
-  };
+  state = { ...initialState };
 
   addDigit = digit => {
-    this.setState({displayValue: digit});
+    const clearDisplay = this.state.displayValue === '0' || this.state.clearDisplay
+
+    const alreadyHaveDot = digit === '.' && this.state.displayValue.includes('.')
+    if (alreadyHaveDot) {
+        return
+    }
+
+    const currentValue = clearDisplay ? '' : this.state.displayValue
+    const displayValue = currentValue + digit
+
+    this.setState({ displayValue })
+
+    if (digit !== '.') {
+      const newValue = parseFloat(displayValue)
+      const values = [...this.state.values]
+      values[this.state.currentIndexValue] = newValue
+      this.setState({ values })
+    }
   };
 
   clearCalculations = () => {
-    this.setState({displayValue: 0});
+    this.setState({ ...initialState });
   };
 
-  setOperation = operation => {};
+  setOperation = operation => {
+    if(this.state.currentIndexValue === 0) {
+      this.setState({ operation, currentIndexValue: 1, clearDisplay: true })
+    } else {
+      const equals = operation === "="
+      const values = [...this.state.values]
+
+      try {
+        values[0] = 
+          eval(`${values[0]} ${this.state.operation} ${values[1]}`)
+      } catch (e) {
+        values[0] = this.state.values[0]
+      }
+
+      values[1] = 0
+      this.setState({
+        displayValue: `${values[0]}`,
+        operation: equals ? null: operation,
+        currentIndexValue: equals ? 0 : 1,
+        clearDisplay: !equals,
+        values
+      })
+    }
+  };
 
   render() {
     return (
@@ -72,10 +118,10 @@ export default class App extends Component {
 
 const style = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   keys: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexWrap: 'wrap'
   },
 });

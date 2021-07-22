@@ -13,6 +13,8 @@ const style = StyleSheet.create({
         width: Dimensions.get('window').width / 4,
         backgroundColor: '#F0F0F0',
         textAlign: 'center',
+        justifyContent: 'center',
+        textAlignVertical: 'center',
         borderWidth: 1,
         borderColor: '#888'
     },
